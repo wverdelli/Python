@@ -1,0 +1,129 @@
+# Lista para armazenar os gabaritos das provas
+gabaritos = []
+
+# Lista para armazenar os alunos cadastrados
+alunos = []
+
+# Lista para armazenar as avaliações dos alunos
+avaliacoes = []
+
+def cadastrar_aluno():
+    print("\nCADASTRO DE ALUNO:")
+    matricula = input("Digite a matrícula do aluno: ")
+    nome = input("Digite o nome do aluno: ")
+    turma = input("Digite a turma do aluno: ")
+
+    alunos.append({"matricula": matricula, "nome": nome, "turma": turma})
+    print("Aluno cadastrado com sucesso.")
+
+def cadastrar_gabarito():
+    print("\nCADASTRO DE GABARITO:")
+    numero_prova = input("Digite o número da prova: ")
+    materia = input("Digite a matéria da prova: ")
+    qtd_questoes = int(input("Digite a quantidade de questões da prova: "))
+
+    # Solicita as respostas do gabarito
+    gabarito = []
+    for i in range(qtd_questoes):
+        resposta = input(f"Digite a resposta correta da questão {i+1}: ")
+        gabarito.append(resposta)
+
+    gabaritos.append({"numero": numero_prova, "materia": materia, "qtd_questoes": qtd_questoes, "gabarito": gabarito})
+    print("Gabarito cadastrado com sucesso.")
+
+def cadastrar_avaliacao_aluno():
+    print("\nCADASTRO DE AVALIAÇÃO DE ALUNO:")
+    matricula = input("Digite a matrícula do aluno: ")
+    
+    aluno = next((aluno for aluno in alunos if aluno["matricula"] == matricula), None)
+    if not aluno:
+        print("Aluno não encontrado.")
+        return
+
+    numero_prova = input("Digite o número da prova cadastrada em gabarito: ")
+
+    # Verifica se o número da prova existe nos gabaritos cadastrados
+    gabarito_prova = next((gabarito for gabarito in gabaritos if gabarito["numero"] == numero_prova), None)
+
+    if gabarito_prova:
+        # Solicita as respostas do aluno
+        respostas_aluno = []
+        for i in range(gabarito_prova["qtd_questoes"]):
+            resposta = input(f"Digite a resposta do aluno para a questão {i+1}: ")
+            respostas_aluno.append(resposta)
+
+        # Compara as respostas do aluno com o gabarito
+        num_acertos = sum(1 for resp_aluno, resp_gabarito in zip(respostas_aluno, gabarito_prova["gabarito"]) if resp_aluno == resp_gabarito)
+        respostas_corretas = [resp_aluno == resp_gabarito for resp_aluno, resp_gabarito in zip(respostas_aluno, gabarito_prova["gabarito"])]
+
+        avaliacoes.append({"matricula": matricula, "nome": aluno["nome"], "disciplina": gabarito_prova["materia"], "num_acertos": num_acertos, "respostas_aluno": respostas_aluno, "respostas_corretas": respostas_corretas})
+
+        print(f"Número de acertos do aluno: {num_acertos}")
+    else:
+        print("Prova não encontrada nos gabaritos cadastrados.")
+
+def relatorio_notas():
+    print("\nRELATÓRIO DE NOTAS:")
+    if not avaliacoes:
+        print("Nenhuma avaliação registrada.")
+    else:
+        for avaliacao in avaliacoes:
+            print(f"Matrícula: {avaliacao['matricula']}, Nome: {avaliacao['nome']}, Disciplina: {avaliacao['disciplina']}, Acertos: {avaliacao['num_acertos']}")
+            for i, (resp_aluno, correta) in enumerate(zip(avaliacao['respostas_aluno'], avaliacao['respostas_corretas'])):
+                status = "Correta" if correta else "Incorreta"
+                print(f"Questão {i+1}: {resp_aluno} ({status})")
+
+def relatorio_alunos():
+    print("\nRELATÓRIO DE ALUNOS CADASTRADOS:")
+    if not alunos:
+        print("Nenhum aluno cadastrado.")
+    else:
+        for aluno in alunos:
+            print(f"Matrícula: {aluno['matricula']}, Nome: {aluno['nome']}, Turma: {aluno['turma']}")
+
+def relatorio_gabaritos():
+    print("\nRELATÓRIO DE GABARITOS CADASTRADOS:")
+    if not gabaritos:
+        print("Nenhum gabarito cadastrado.")
+    else:
+        for gabarito in gabaritos:
+            print(f"Número da Prova: {gabarito['numero']}, Matéria: {gabarito['materia']}, Quantidade de Questões: {gabarito['qtd_questoes']}")
+            print("Questões e Respostas Corretas:")
+            for i, resposta in enumerate(gabarito['gabarito']):
+                print(f"Questão {i+1}: {resposta}")
+
+def menu():
+    print("\nMENU:")
+    print("1. Cadastrar Aluno")
+    print("2. Cadastrar Gabarito")
+    print("3. Cadastrar Avaliação de Aluno")
+    print("4. Relatório de Notas")
+    print("5. Relatório de Alunos Cadastrados")
+    print("6. Relatório de Gabaritos Cadastrados")
+    print("7. Sair")
+
+def main():
+    while True:
+        menu()
+        opcao = input("\nEscolha uma opção: ")
+
+        if opcao == "1":
+            cadastrar_aluno()
+        elif opcao == "2":
+            cadastrar_gabarito()
+        elif opcao == "3":
+            cadastrar_avaliacao_aluno()
+        elif opcao == "4":
+            relatorio_notas()
+        elif opcao == "5":
+            relatorio_alunos()
+        elif opcao == "6":
+            relatorio_gabaritos()
+        elif opcao == "7":
+            print("Encerrando o programa...")
+            break
+        else:
+            print("Opção inválida. Escolha novamente.")
+
+if __name__ == "__main__":
+    main()
